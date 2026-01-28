@@ -1,0 +1,8 @@
+{
+    "name": "workers-jump-i-1-byet",
+    "main": "./_worker.js",
+    "compatibility_date": "2025-11-18",
+    "placement": {
+        "mode": "smart"
+    }
+}

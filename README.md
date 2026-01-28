@@ -1,0 +1,21 @@
+![](https://socialify.git.ci/openlablog/workers-jump-i-1-byet/image?description=1&forks=1&issues=1&language=1&name=1&owner=1&pattern=Solid&pulls=1&stargazers=1&theme=Light&t=996644)
+
+## 功能
+
+1. 集成slowAES解密算法，解密中转页面
+2. 跳过带 ?i=1 的中转页面，实现api请求时获取最终页面
+3. 替换所有后端域名为前端域名，相当于反代
+
+## 修改_worker.js里的后端域名
+
+```javascript
+...
+// 这是后端域名，这里替换为你的InfinityFree免费主机的域名，不带 http 和 /
+url.host = "how-to-remove-i-1.infinityfree.me";
+...
+```
+
+## 部署
+
+1. Fork本仓库
+2. 创建workers部署即可
