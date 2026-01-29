@@ -1,4 +1,4 @@
-![](https://socialify.git.ci/openlablog/workers-jump-i-1-byet/image?description=1&forks=1&issues=1&language=1&name=1&owner=1&pattern=Solid&pulls=1&stargazers=1&theme=Light&t=456789)
+![](https://socialify.git.ci/openlablog/optimizing-api-seo-geo-for-byet/image?custom_language=JavaScript&description=1&forks=1&issues=1&language=1&name=1&owner=1&pattern=Solid&pulls=1&stargazers=1&theme=Auto&t=456789)
 
 ## 功能
 
