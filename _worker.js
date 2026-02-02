@@ -2,11 +2,16 @@ export default {
     async fetch(request, env, ctx) {
         try {
             let url = new URL(request.url);
-            let host = url.host;
 
-            // 这是后端域名，这里替换为你的InfinityFree免费主机的域名，不带 http 和 /
-            url.host = "how-to-remove-i-1.infinityfree.me";
+            // 后端域名，Byet系列免费主机的免费二级域名，不带 http 和 /，例如InfinityFree免费主机的域名
+            let backend_host = "how-to-remove-i-1.infinityfree.me";
 
+            // 替换前端域名
+            let frontend_host = url.host;
+            url.host = backend_host;
+
+            // 免费主机的协议，http: 或 https:
+            url.protocol = "https:";
 
             let cookie = request.headers.get("Cookie") || "";
             let userAgent = request.headers.get("User-Agent") || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Language/zh_CN";
@@ -22,7 +27,7 @@ export default {
             let newResponse = await fetch(newRequest);
 
             // 判断是否返回中转页面
-            let getResponse = await cloneResponse(newResponse.clone(), url.host, host);
+            let getResponse = await cloneResponse(newResponse.clone(), backend_host, frontend_host);
             if (getResponse.type === "json") {
 
                 // 第二次请求
@@ -30,7 +35,7 @@ export default {
                 let newResponse2 = await fetch(newRequest2);
 
                 // 判断是否返回中转页面
-                let getResponse2 = await cloneResponse(newResponse2.clone(), url.host, host);
+                let getResponse2 = await cloneResponse(newResponse2.clone(), backend_host, frontend_host);
                 if (getResponse2.type === "json") {
 
                     // 第三次请求
@@ -38,7 +43,7 @@ export default {
                     let newResponse3 = await fetch(newRequest3);
 
                     // 判断是否返回中转页面
-                    let getResponse3 = await cloneResponse(newResponse3.clone(), url.host, host);
+                    let getResponse3 = await cloneResponse(newResponse3.clone(), backend_host, frontend_host);
                     if (getResponse3.type === "json") {
 
                         // 如果三次请求后还是中转页面，则不处理直接返回
@@ -80,7 +85,7 @@ function cloneRequest(request_url, request_clone, user_agent = "", cookie = "") 
     return new_request;
 }
 
-async function cloneResponse(response_clone, backendHost, displayHost, cookie = "") {
+async function cloneResponse(response_clone, backendHost, frontendHost, cookie = "") {
     let new_response;
 
     if (response_clone.status >= 300 && response_clone.status < 400) {
@@ -89,7 +94,7 @@ async function cloneResponse(response_clone, backendHost, displayHost, cookie = 
         let loc = response_clone.headers.get('Location') || "";
 
         // 将重定向地址中的后端域名替换为前端域名
-        loc = loc.replaceAll(backendHost, displayHost);
+        loc = loc.replaceAll(backendHost, frontendHost);
 
         // 重定向响应通常没有body，所以第一个参数是null
         new_response = new Response(null, response_clone);
@@ -128,7 +133,7 @@ async function cloneResponse(response_clone, backendHost, displayHost, cookie = 
             } else {
 
                 // 替换所有后端域名为前端域名
-                text = text.replaceAll(backendHost, displayHost);
+                text = text.replaceAll(backendHost, frontendHost);
 
                 new_response = new Response(text, response_clone);
             }

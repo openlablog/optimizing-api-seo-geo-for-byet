@@ -10,8 +10,10 @@
 
 ```javascript
 ...
-// 这是后端域名，这里替换为你的InfinityFree免费主机的域名，不带 http 和 /
-url.host = "how-to-remove-i-1.infinityfree.me";
+let url = new URL(request.url);
+
+// 后端域名，Byet系列免费主机的免费二级域名，不带 http 和 /，例如InfinityFree免费主机的域名
+let backend_host = "how-to-remove-i-1.infinityfree.me";
 ...
 ```
 
