@@ -69,8 +69,13 @@ export default {
 };
 
 function cloneRequest(request_url, request_clone, user_agent = "", cookie = "") {
-    // 克隆原始请求来构造新请求
+    // 创建新的请求对象，URL已修改，其他属性与原请求相同
     let new_request = new Request(request_url, request_clone);
+
+    // 手动修正核心 Header，确保请求能正确到达后端服务器
+    new_request.headers.set("Host", url.host); // Host 头必须是后端服务器的域名
+    new_request.headers.set('origin', url.origin); // Origin 头必须是后端服务器的域名和协议
+    new_request.headers.set("Referer", url.href); // 修正 Referer 头，确保后端服务器能正确处理请求和 Referer 防盗链
 
     // 修改User-Agent
     if (user_agent !== "") {
@@ -82,6 +87,7 @@ function cloneRequest(request_url, request_clone, user_agent = "", cookie = "") 
         new_request.headers.set("Cookie", cookie);
     }
 
+    // 返回新的Request对象
     return new_request;
 }
 
