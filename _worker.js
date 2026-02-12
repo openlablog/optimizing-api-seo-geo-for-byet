@@ -92,24 +92,35 @@ function cloneRequest(request_url, request_clone, user_agent = "", cookie = "") 
 }
 
 async function cloneResponse(response_clone, backendHost, frontendHost, cookie = "") {
-    let new_response;
+    let new_response = response_clone;
 
-    if (response_clone.status >= 300 && response_clone.status < 400) {
+    if (response_clone.status >= 300 && response_clone.status < 400) { // 后端服务器返回3xx状态码
 
-        // 后端服务器返回3xx状态码
         let loc = response_clone.headers.get('Location') || "";
 
         // 将重定向地址中的后端域名替换为前端域名
         loc = loc.replaceAll(backendHost, frontendHost);
 
         // 重定向响应通常没有body，所以第一个参数是null
-        new_response = new Response(null, response_clone);
+        new_response = new Response(null, {
+            status: response_clone.status, // 保持原状态码
+            statusText: response_clone.statusText, // 保持原状态码文本
+            headers: response_clone.headers, // 保持原头部
+        });
+
+        // 关键：由于内容已被修改，删除原有的长度，让 Cloudflare 自动重新计算分块传输长度
+        new_response.headers.delete("Content-Length");
+        // 关键：由于内容已被修改，强行移除可能存在的压缩标识，防止浏览器解压失败
+        new_response.headers.delete("Content-Encoding");
+
+        // 修改 Location 头
         new_response.headers.set("Location", loc);
 
-    } else {
+    } else if (response_clone.status >= 200 && response_clone.status < 300) { // 后端服务器返回2xx状态码
+
+        let type = response_clone.headers.get("Content-Type") || "";
 
         // 如果响应内容是文本类型（HTML/CSS/JS/JSON/XML/...）
-        let type = response_clone.headers.get("Content-Type") || "";
         if (
             type.includes("text/")
             || type.includes("application/javascript") || type.includes("application/x-javascript")
@@ -141,12 +152,18 @@ async function cloneResponse(response_clone, backendHost, frontendHost, cookie =
                 // 替换所有后端域名为前端域名
                 text = text.replaceAll(backendHost, frontendHost);
 
-                new_response = new Response(text, response_clone);
-            }
-        } else {
+                // 创建新的响应对象
+                new_response = new Response(text, {
+                    status: response_clone.status, // 保持原状态码
+                    statusText: response_clone.statusText, // 保持原状态码文本
+                    headers: response_clone.headers, // 保持原头部
+                });
 
-            // 其它类型直接返回
-            new_response = new Response(response_clone.body, response_clone);
+                // 关键：由于内容已被修改，删除原有的长度，让 Cloudflare 自动重新计算分块传输长度
+                new_response.headers.delete("Content-Length");
+                // 关键：由于内容已被修改，强行移除可能存在的压缩标识，防止浏览器解压失败
+                new_response.headers.delete("Content-Encoding");
+            }
         }
     }
 
